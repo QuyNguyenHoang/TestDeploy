@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Weather API Test</title>
+</head>
+<body>
+
+    <h2>Weather Forecast CRUD Test</h2>
+
+    <button onclick="loadData()">Load All</button>
+
+    <h3>Add New</h3>
+    <input type="date" id="date">
+    <input type="number" id="temp" placeholder="Temperature C">
+    <input type="text" id="summary" placeholder="Summary">
+    <button onclick="addData()">Add</button>
+
+    <h3>Data</h3>
+    <ul id="list"></ul>
+
+    <script>
+        const baseUrl = "/api/WeatherForecast";
+
+        async function loadData() {
+            const res = await fetch(baseUrl);
+            const data = await res.json();
+
+            const list = document.getElementById("list");
+            list.innerHTML = "";
+
+            data.forEach(item => {
+                list.innerHTML += `
+                    <li>
+                        ID: ${item.id} |
+                        Date: ${item.date} |
+                        Temp: ${item.temperatureC}°C |
+                        ${item.summary}
+                        <button onclick="deleteData(${item.id})">Delete</button>
+                    </li>
+                `;
+            });
+        }
+
+        async function addData() {
+            const date = document.getElementById("date").value;
+            const temp = document.getElementById("temp").value;
+            const summary = document.getElementById("summary").value;
+
+            await fetch(baseUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    date: date,
+                    temperatureC: parseInt(temp),
+                    summary: summary
+                })
+            });
+
+            loadData();
+        }
+
+        async function deleteData(id) {
+            await fetch(baseUrl + "/" + id, {
+                method: "DELETE"
+            });
+
+            loadData();
+        }
+
+        loadData();
+    </script>
+
+</body>
+</html>
