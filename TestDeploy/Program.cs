@@ -30,19 +30,10 @@ if (string.IsNullOrEmpty(connectionString))
     throw new Exception("❌ Connection string is NULL. Check Railway Variables.");
 }
 
+// 🔥 LUÔN dùng PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    if (builder.Environment.IsDevelopment())
-    {
-        // Local SQL Server
-        options.UseSqlServer(connectionString);
-    }
-    else
-    {
-        // Railway PostgreSQL
-        options.UseNpgsql(connectionString);
-    }
-});
+    options.UseNpgsql(connectionString)
+);
 
 // ================= IDENTITY =================
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
