@@ -30,9 +30,21 @@ if (builder.Environment.IsDevelopment())
 }
 else
 {
+    var raw = builder.Configuration.GetConnectionString("DefaultConnection");
+
+    var uri = new Uri(raw);
+    var userInfo = uri.UserInfo.Split(':');
+
+    var connString =
+        $"Host={uri.Host};" +
+        $"Port={uri.Port};" +
+        $"Database={uri.AbsolutePath.TrimStart('/')};" +
+        $"Username={userInfo[0]};" +
+        $"Password={userInfo[1]};" +
+        $"SSL Mode=Require;Trust Server Certificate=true";
+
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseNpgsql(
-            builder.Configuration.GetConnectionString("DefaultConnection")));
+        options.UseNpgsql(connString));
 }
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
