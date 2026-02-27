@@ -16,7 +16,7 @@ namespace TestDeploy.Controllers
         }
 
         // ================= GET ALL =================
-        [HttpGet]
+        [HttpGet("view")]
         public async Task<IActionResult> GetAll()
         {
             var data = await _context.TestDatas.ToListAsync();
@@ -24,7 +24,7 @@ namespace TestDeploy.Controllers
         }
 
         // ================= GET BY ID =================
-        [HttpGet("{id}")]
+        [HttpGet("viewbyId/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var data = await _context.TestDatas.FindAsync(id);
@@ -36,7 +36,7 @@ namespace TestDeploy.Controllers
         }
 
         // ================= CREATE =================
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> Create(TestData model)
         {
             _context.TestDatas.Add(model);
@@ -46,7 +46,7 @@ namespace TestDeploy.Controllers
         }
 
         // ================= UPDATE =================
-        [HttpPut("{id}")]
+        [HttpPut("update/{id}")]
         public async Task<IActionResult> Update(int id, TestData model)
         {
             var data = await _context.TestDatas.FindAsync(id);
@@ -63,7 +63,7 @@ namespace TestDeploy.Controllers
         }
 
         // ================= DELETE =================
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var data = await _context.TestDatas.FindAsync(id);
