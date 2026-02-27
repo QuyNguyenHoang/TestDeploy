@@ -4,10 +4,11 @@ using TestDeploy.Controllers.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Railway port
+// ================= PORT (Railway) =================
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
+// ================= SERVICES =================
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -21,34 +22,42 @@ builder.Services.AddCors(options =>
 });
 
 // ================= DATABASE =================
+var connectionString = builder.Configuration
+    .GetConnectionString("DefaultConnection");
 
-// Nếu có DATABASE_URL -> đang chạy trên Railway
-var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-
-if (!string.IsNullOrEmpty(databaseUrl))
+if (string.IsNullOrEmpty(connectionString))
 {
-    // Production (Railway - PostgreSQL)
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseNpgsql(databaseUrl));
-}
-else
-{
-    // Local Development (SQL Server)
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(
-            builder.Configuration.GetConnectionString("DefaultConnection")));
+    throw new Exception("❌ Connection string is NULL. Check Railway Variables.");
 }
 
-// ============================================
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        // Local SQL Server
+        options.UseSqlServer(connectionString);
+    }
+    else
+    {
+        // Railway PostgreSQL
+        options.UseNpgsql(connectionString);
+    }
+});
 
+// ================= IDENTITY =================
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+// ================= BUILD =================
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+// ================= MIDDLEWARE =================
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseCors("AllowAll");
 
@@ -57,7 +66,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Auto migrate
+// ================= AUTO MIGRATE =================
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
