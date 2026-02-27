@@ -1,76 +1,96 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Weather API Test</title>
+    <title>Test CRUD API</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 30px;
+        }
+
+        input {
+            margin: 5px;
+            padding: 5px;
+        }
+
+        button {
+            padding: 5px 10px;
+        }
+
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        td, th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+    </style>
 </head>
 <body>
 
-    <h2>Weather Forecast CRUD Test</h2>
+    <h2>Test CRUD</h2>
 
-    <button onclick="loadData()">Load All</button>
+    <input type="text" id="name" placeholder="Name" />
+    <input type="text" id="description" placeholder="Description" />
+    <button onclick="create()">Add</button>
 
-    <h3>Add New</h3>
-    <input type="date" id="date">
-    <input type="number" id="temp" placeholder="Temperature C">
-    <input type="text" id="summary" placeholder="Summary">
-    <button onclick="addData()">Add</button>
-
-    <h3>Data</h3>
-    <ul id="list"></ul>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="data"></tbody>
+    </table>
 
     <script>
-        const baseUrl = "/api/WeatherForecast";
+        const api = "/api/test-datas";
 
-        async function loadData() {
-            const res = await fetch(baseUrl);
+        async function load() {
+            const res = await fetch(api);
             const data = await res.json();
 
-            const list = document.getElementById("list");
-            list.innerHTML = "";
+            const tbody = document.getElementById("data");
+            tbody.innerHTML = "";
 
             data.forEach(item => {
-                list.innerHTML += `
-                    <li>
-                        ID: ${item.id} |
-                        Date: ${item.date} |
-                        Temp: ${item.temperatureC}°C |
-                        ${item.summary}
-                        <button onclick="deleteData(${item.id})">Delete</button>
-                    </li>
-                `;
+                tbody.innerHTML += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.description}</td>
+                    <td>
+                        <button onclick="remove(${item.id})">Delete</button>
+                    </td>
+                </tr>
+            `;
             });
         }
 
-        async function addData() {
-            const date = document.getElementById("date").value;
-            const temp = document.getElementById("temp").value;
-            const summary = document.getElementById("summary").value;
+        async function create() {
+            const name = document.getElementById("name").value;
+            const description = document.getElementById("description").value;
 
-            await fetch(baseUrl, {
+            await fetch(api, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    date: date,
-                    temperatureC: parseInt(temp),
-                    summary: summary
-                })
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, description })
             });
 
-            loadData();
+            load();
         }
 
-        async function deleteData(id) {
-            await fetch(baseUrl + "/" + id, {
-                method: "DELETE"
-            });
-
-            loadData();
+        async function remove(id) {
+            await fetch(`${api}/${id}`, { method: "DELETE" });
+            load();
         }
 
-        loadData();
+        load();
     </script>
 
 </body>

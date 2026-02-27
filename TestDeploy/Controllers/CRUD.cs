@@ -4,13 +4,13 @@ using TestDeploy.Controllers.Data;
 
 namespace TestDeploy.Controllers
 {
-    [Route("api/Test/[controller]")]
+    [Route("api/test-datas")]
     [ApiController]
-    public class CRUDController : ControllerBase
+    public class TestDatasController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public CRUDController(ApplicationDbContext context)
+        public TestDatasController(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -37,17 +37,17 @@ namespace TestDeploy.Controllers
 
         // ================= CREATE =================
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] TestData model)
+        public async Task<IActionResult> Create(TestData model)
         {
-            await _context.TestDatas.AddAsync(model);
+            _context.TestDatas.Add(model);
             await _context.SaveChangesAsync();
 
-            return Ok(model);
+            return CreatedAtAction(nameof(GetById), new { id = model.Id }, model);
         }
 
         // ================= UPDATE =================
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] TestData model)
+        public async Task<IActionResult> Update(int id, TestData model)
         {
             var data = await _context.TestDatas.FindAsync(id);
 
@@ -74,7 +74,7 @@ namespace TestDeploy.Controllers
             _context.TestDatas.Remove(data);
             await _context.SaveChangesAsync();
 
-            return Ok("Deleted successfully");
+            return NoContent();
         }
     }
 }
