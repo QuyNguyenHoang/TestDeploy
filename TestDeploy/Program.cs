@@ -20,32 +20,26 @@ builder.Services.AddCors(options =>
                         .AllowAnyHeader());
 });
 
-// DEV = SQL Server
-// PROD = PostgreSQL
-if (builder.Environment.IsDevelopment())
+// ================= DATABASE =================
+
+// Nếu có DATABASE_URL -> đang chạy trên Railway
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+
+if (!string.IsNullOrEmpty(databaseUrl))
 {
+    // Production (Railway - PostgreSQL)
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseNpgsql(databaseUrl));
+}
+else
+{
+    // Local Development (SQL Server)
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(
             builder.Configuration.GetConnectionString("DefaultConnection")));
 }
-else
-{
-    var raw = builder.Configuration.GetConnectionString("DefaultConnection");
 
-    var uri = new Uri(raw);
-    var userInfo = uri.UserInfo.Split(':');
-
-    var connString =
-        $"Host={uri.Host};" +
-        $"Port={uri.Port};" +
-        $"Database={uri.AbsolutePath.TrimStart('/')};" +
-        $"Username={userInfo[0]};" +
-        $"Password={userInfo[1]};" +
-        $"SSL Mode=Require;Trust Server Certificate=true";
-
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseNpgsql(connString));
-}
+// ============================================
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -58,13 +52,12 @@ app.UseSwaggerUI();
 
 app.UseCors("AllowAll");
 
-app.UseAuthentication();   // 🔥 thêm dòng này
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-
-// 🔥 Auto migrate database khi deploy
+// Auto migrate
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
