@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TestDeploy.Controllers.Data;
+using TestDeploy.Data;
+using TestDeploy.Models;
 
 namespace TestDeploy.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/test-datas")]
     [ApiController]
     public class TestDatasController : ControllerBase
     {
@@ -15,56 +16,55 @@ namespace TestDeploy.Controllers
             _context = context;
         }
 
-        // GET: api/testdatas
+        // GET ALL
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var data = await _context.TestDatas.ToListAsync();
-            return Ok(data);
+            return Ok(await _context.TestDatas.ToListAsync());
         }
 
-        // GET: api/testdatas/5
+        // GET BY ID
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(Guid id)
         {
-            var data = await _context.TestDatas.FindAsync(id);
-            if (data == null) return NotFound();
-            return Ok(data);
+            var item = await _context.TestDatas.FindAsync(id);
+            if (item == null) return NotFound();
+            return Ok(item);
         }
 
-        // POST: api/testdatas
+        // CREATE
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] TestData model)
+        public async Task<IActionResult> Create(TestData model)
         {
             _context.TestDatas.Add(model);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = model.Id }, model);
+            return Ok(model);
         }
 
-        // PUT: api/testdatas/5
+        // UPDATE
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] TestData model)
+        public async Task<IActionResult> Update(Guid id, TestData model)
         {
-            var data = await _context.TestDatas.FindAsync(id);
-            if (data == null) return NotFound();
+            var item = await _context.TestDatas.FindAsync(id);
+            if (item == null) return NotFound();
 
-            data.Name = model.Name;
-            data.Description = model.Description;
+            item.Name = model.Name;
+            item.Description = model.Description;
 
             await _context.SaveChangesAsync();
-            return Ok(data);
+            return Ok(item);
         }
 
-        // DELETE: api/testdatas/5
+        // DELETE
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var data = await _context.TestDatas.FindAsync(id);
-            if (data == null) return NotFound();
+            var item = await _context.TestDatas.FindAsync(id);
+            if (item == null) return NotFound();
 
-            _context.TestDatas.Remove(data);
+            _context.TestDatas.Remove(item);
             await _context.SaveChangesAsync();
-            return NoContent();
+            return Ok();
         }
     }
 }

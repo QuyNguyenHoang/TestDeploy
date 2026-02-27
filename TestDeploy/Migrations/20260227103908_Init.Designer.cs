@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using TestDeploy.Controllers.Data;
+using TestDeploy.Data;
 
 #nullable disable
 
 namespace TestDeploy.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260227094635_Init")]
+    [Migration("20260227103908_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -221,13 +221,11 @@ namespace TestDeploy.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("TestDeploy.Controllers.Data.TestData", b =>
+            modelBuilder.Entity("TestDeploy.Models.TestData", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Description")
                         .IsRequired()

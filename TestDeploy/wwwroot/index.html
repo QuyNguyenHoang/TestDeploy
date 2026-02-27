@@ -1,17 +1,49 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>Test CRUD API</title>
+    <title>CRUD Admin</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 40px;
+        }
+
+        input {
+            padding: 6px;
+            margin-right: 5px;
+        }
+
+        button {
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            background: #f4f4f4;
+        }
+    </style>
 </head>
 <body>
 
-    <h2>Test CRUD</h2>
+    <h2>🚀 Test CRUD Admin</h2>
 
+    <input type="hidden" id="editId" />
     <input type="text" id="name" placeholder="Name" />
     <input type="text" id="description" placeholder="Description" />
-    <button onclick="create()">Add</button>
+    <button onclick="save()">Save</button>
 
-    <table border="1" cellpadding="8">
+    <table>
         <thead>
             <tr>
                 <th>ID</th>
@@ -24,7 +56,7 @@
     </table>
 
     <script>
-        const api = "/api/testdatas";
+        const api = "/api/test-datas";
 
         async function load() {
             const res = await fetch(api);
@@ -35,27 +67,47 @@
 
             data.forEach(item => {
                 tbody.innerHTML += `
-                    <tr>
-                        <td>${item.id}</td>
-                        <td>${item.name}</td>
-                        <td>${item.description}</td>
-                        <td>
-                            <button onclick="removeData(${item.id})">Delete</button>
-                        </td>
-                    </tr>
-                `;
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.description}</td>
+                    <td>
+                        <button onclick="edit('${item.id}','${item.name}','${item.description}')">Edit</button>
+                        <button onclick="removeData('${item.id}')">Delete</button>
+                    </td>
+                </tr>
+            `;
             });
         }
 
-        async function create() {
+        function edit(id, name, description) {
+            document.getElementById("editId").value = id;
+            document.getElementById("name").value = name;
+            document.getElementById("description").value = description;
+        }
+
+        async function save() {
+            const id = document.getElementById("editId").value;
             const name = document.getElementById("name").value;
             const description = document.getElementById("description").value;
 
-            await fetch(api, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, description })
-            });
+            if (id) {
+                await fetch(`${api}/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id, name, description })
+                });
+            } else {
+                await fetch(api, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, description })
+                });
+            }
+
+            document.getElementById("editId").value = "";
+            document.getElementById("name").value = "";
+            document.getElementById("description").value = "";
 
             load();
         }
