@@ -2,31 +2,6 @@
 <html>
 <head>
     <title>Test CRUD API</title>
-    <style>
-        body {
-            font-family: Arial;
-            padding: 30px;
-        }
-
-        input {
-            margin: 5px;
-            padding: 5px;
-        }
-
-        button {
-            padding: 5px 10px;
-        }
-
-        table {
-            margin-top: 20px;
-            border-collapse: collapse;
-        }
-
-        td, th {
-            border: 1px solid #ddd;
-            padding: 8px;
-        }
-    </style>
 </head>
 <body>
 
@@ -36,7 +11,7 @@
     <input type="text" id="description" placeholder="Description" />
     <button onclick="create()">Add</button>
 
-    <table>
+    <table border="1" cellpadding="8">
         <thead>
             <tr>
                 <th>ID</th>
@@ -49,7 +24,7 @@
     </table>
 
     <script>
-        const api = "/api/test-datas";
+        const api = "/api/testdatas";
 
         async function load() {
             const res = await fetch(api);
@@ -60,15 +35,15 @@
 
             data.forEach(item => {
                 tbody.innerHTML += `
-                <tr>
-                    <td>${item.id}</td>
-                    <td>${item.name}</td>
-                    <td>${item.description}</td>
-                    <td>
-                        <button onclick="remove(${item.id})">Delete</button>
-                    </td>
-                </tr>
-            `;
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.name}</td>
+                        <td>${item.description}</td>
+                        <td>
+                            <button onclick="removeData(${item.id})">Delete</button>
+                        </td>
+                    </tr>
+                `;
             });
         }
 
@@ -85,7 +60,7 @@
             load();
         }
 
-        async function remove(id) {
+        async function removeData(id) {
             await fetch(`${api}/${id}`, { method: "DELETE" });
             load();
         }
